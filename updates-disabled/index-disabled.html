@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en" class="no-js">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="robots" content="noindex, nofollow" />
+    <title>Email Updates</title>
+
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-QGPPLZJ9H2"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-QGPPLZJ9H2');
+    </script>
+    
+    <link rel="shortcut icon" href="https://biggiant-games.com/favicon.ico">
+    <link rel="stylesheet" type="text/css" href="https://biggiant-games.com/updates/css/normalize.css" />
+    <link rel="stylesheet" type="text/css" href="https://biggiant-games.com/updates/css/body.css#1" />
+    <link rel="stylesheet" type="text/css" href="https://biggiant-games.com/updates/css/component.css" />
+    <script src="https://biggiant-games.com/updates/js/modernizr.custom.js"></script>
+</head>
+
+<body>
+    <div class="container">
+        <!-- Top Navigation -->
+        <div class="c-top clearfix" id="top">
+            <a class="" href="https://biggiant-games.com/"><span>
+                    &#60; biggiant-games.com</span></a>
+        </div>
+        <header class="c-header" style="padding-top:3em;margin-bottom:-3em">
+            <img id="lg" src="https://biggiant-games.com/images/logo_prisonescape.png" />
+            <br><img id="lg" src="https://biggiant-games.com/images/logo_alcatraz.png" style="margin: 10px 0 10px 0;">
+        </header>
+        <section>
+            <form id="theForm" class="simform" autocomplete="off">
+                <noscript>Enable JavaScript</noscript>
+                <div id="s1" class="simform-inner" style="display:none">
+                    <ol class="questions">
+                        <li>
+                            <span><label for="q1">Email:</label></span>
+                            <input id="q1" name="q1" type="email" pattern="[^ @]*@[^ @]*"
+                                placeholder="email@address.com" />
+                        </li>
+                    </ol><!-- /questions -->
+                    <button class="submit" type="submit">Send answers</button>
+                    <div class="controls">
+                        <button class="next" id="nxt">&#10132;</button>
+                        <div class="progress"></div>
+                        <span class="number" style="display: none">
+                            <span class="number-current"></span>
+                            <span class="number-total"></span>
+                        </span>
+                        <span class="error-message" id="err"></span>
+                    </div><!-- / controls -->
+                </div><!-- /simform-inner -->
+                <div id="s2" style="display:block"><br><br></div>
+                <span class="final-message" style="margin-top:25px;margin-bottom:-10px"></span>
+            </form><!-- /simform -->
+        </section>
+    </div><!-- /container -->
+    <script src="https://biggiant-games.com/updates/js/classie.js"></script>
+    <script src="https://biggiant-games.com/updates/js/stepsForm.js"></script>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js" type="text/javascript"></script>
+    <script>window.jQuery || document.write('<script src="js/vendor/jquery-1.7.2.min.js"><\/script>')</script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/core.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/md5.min.js"></script>
+
+    <script src="https://www.gstatic.com/firebasejs/5.9.3/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/5.9.3/firebase-database.js"></script>
+
+    <script type="module">
+        const config = {
+            apiKey: "AIzaSyAUIIQiGD6KLBIONK99M2dTP6VEOs0M07Y",
+            authDomain: "big-giant-games.firebaseapp.com",
+            databaseURL: "https://big-giant-games-default-rtdb.firebaseio.com",
+            projectId: "big-giant-games",
+            storageBucket: "big-giant-games.appspot.com",
+            messagingSenderId: "814675875840",
+            appId: "1:814675875840:web:2d89270ae2849099a1a0e5"
+        };
+        firebase.initializeApp(config);
+
+        //Begin FORM
+        var theForm = document.getElementById('theForm');
+        var messageEl = theForm.querySelector('.final-message');
+
+        new stepsForm(theForm, {
+            onSubmit: function (form) {
+                classie.addClass(theForm.querySelector('.simform-inner'), 'hide');
+                star();
+
+                var v = $("#q1").val(),
+                    k = CryptoJS.MD5(v).toString().substring(0, 12),
+                    e = {};
+                e[k] = v;
+
+                firebase.database().ref('Updates')
+                    .update(e)
+                    .then(() => { })
+                    .catch((error) => { });
+
+            }
+        });
+
+        function star() {
+            messageEl.innerHTML =
+                '<img style="width:50%;max-width: 200px;margin-top:50px;" src="https://biggiant-games.com/updates/img/star.png"/><br>'
+                + '&#x2705; ' + $("#q1").val();
+            localStorage.setItem("em", $("#q1").val());
+            classie.addClass(messageEl, 'show');
+        }
+
+        var em = localStorage.getItem("em");
+        if (em) {
+            $("#q1").val(em);
+            messageEl.innerHTML =
+                '<img style="width:50%;max-width: 200px;margin-top:50px;" src="https://biggiant-games.com/updates/img/star.png"/>'
+                + "<br><!--<div>Thank you! We\'ll be in touch</div>!-->"
+                + '&#x2705; '
+                + em;
+            classie.addClass(messageEl, 'show');
+        } else {
+            $("#s1").show();
+            $("#s2").hide();
+
+            $(document).ready(function () {
+                $('#q1').focus();
+            });
+        }
+
+        $('<img src="https://biggiant-games.com/updates/img/star.png"/>');
+    </script>
+    
+</body>
+
+</html>
